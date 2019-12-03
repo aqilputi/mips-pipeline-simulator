@@ -1,0 +1,53 @@
+
+* cada estagio do pipeline eh uma instrucao
+* funcoes para todas as unidades do processador
+* vetor regs
+* vetor memoria
+* vetor registrados temporarios de cada fase
+  
+
+* if
+** tempIFID.IR = instrucao[PC]
+** tempIFID.NPC = PC + 4
+** PC += 4
+   
+* id
+** tempIDEX.NPC = tempIFID.NPC
+** tempIDEX.A = reg[tempIFID.IR.rs]
+** tempIDEX.B = reg[tempIFID.IR.rt]
+** UC = getUC(instrucao.name)
+** tempIDEX.rt = tempIFID.IR.rt
+** tempIDEX.rd = tempIFID.IR.rd
+** tempIDEX.imm = tempIFID.IR.imm
+
+* ex
+** tempEXMEM.branchtgt = tempIDEX.NPC + tempIDEX.imm
+** if IDEX.ALUsrc == 0
+*** muxB = tempIDEX.B
+** else 
+*** muxB = imm
+** ALUControl = getALUControl(tempIDEX.ALUop, tempIDEX.imm)
+** tempEXMEM.ALUout = ALU(tempIDEX.A, muxB, ALUControl)
+** if tempEXMEM.ALUout == 0
+*** tempEXMEM.zero = 1
+** else
+*** tempEXMEM.zero = 0
+** tempEXMEM.B = tempIDEX.B
+** if IDEX.regDst == 0
+*** tempEXMEM.rd = tempIDEX.rt
+** else
+*** tempEXMEM.rd = tempIDEX.rd
+   
+* mem
+** if tempEXMEM.branch == 1  
+   && tempEXMEM.zero == 1
+*** PC = tempEXMEM.brtgt
+** tempMEMWB.lmd = readMemory(tempEXMEM.ALUout, tempEXMEM.memRead)
+** writeMemory(tempEXMEM.B, tempEXMEM.memWrite)
+** tempMEMWB.ALUout = tempEXEMEM.ALUout
+
+* wb
+** if tempMEMWB.memToReg == 1
+*** writeRegister(tempMEMWB.lmd, tempMEMWB.rd, tempMEMWB.regWrite)
+** else
+*** writeRegister(tempMEMWB.ALUout, tempMEMWB.rd, tempMEMWB.regWrite)

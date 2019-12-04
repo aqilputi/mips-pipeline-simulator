@@ -1,4 +1,4 @@
-var badStringErr "Bad formatted String"
+var badStringErr = "Bad formatted String"
 
 function number(num) {
 	var temp = parseInt(num)
@@ -26,7 +26,7 @@ function register(reg){
 				throw badStringErr
 
 		case 'v':
-			temp = parseInt(teg.slice(2))
+			temp = parseInt(reg.slice(2))
 
 			if(inRange(temp, 0, 1))
 				return 2 + temp
@@ -34,7 +34,7 @@ function register(reg){
 				throw badStringErr
 
 		case 'a':
-			temp = parseInt(teg.slice(2))
+			temp = parseInt(reg.slice(2))
 
 			if(inRange(temp, 0, 3))
 				return 4 + temp
@@ -42,7 +42,7 @@ function register(reg){
 				throw badStringErr
 
 		case 't':
-			temp = parseInt(teg.slice(2))
+			temp = parseInt(reg.slice(2))
 
 			if (temp < 0)
 				throw badStringErr
@@ -55,7 +55,7 @@ function register(reg){
 				throw badStringErr
 
 		case 's':
-			temp = parseInt(teg.slice(2))
+			temp = parseInt(reg.slice(2))
 
 			if(inRange(temp, 0, 7))
 				return 16 + temp
@@ -94,7 +94,7 @@ function reference(refer){
 function parser(instruction){
 	var parsed = new(Object)
 
-	if (typeof(instructionString) != String)
+	if (typeof(instruction) != "string")
 		throw "\'instruction\' must be of String type"
 
 	instruction = instruction.split(' ')
@@ -103,13 +103,13 @@ function parser(instruction){
 
 	parsed.name = instruction[0]
 
-	for (i = 1, i < instruction.legth - 1, ++i) {
+	for (i = 1; i < instruction.legth - 1; ++i) {
 		if (!instruction[i].endsWith(','))
 			throw badStringErr
 		instruction[i] = instruction[i].slice(0, -1)
 	}
 
-	switch(instruction.name){
+	switch(parsed.name){
 		case "lw":
 		case "sw":
 			parsed.rt = register(instruction[1])

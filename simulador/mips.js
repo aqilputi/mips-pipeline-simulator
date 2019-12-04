@@ -19,6 +19,7 @@ class Mips{
 
     }
 
+
     tickIf(instruction){
         var stalling = 0
 
@@ -282,20 +283,24 @@ class Mips{
             uc.memToReg = 1
             break;
         case "sw":
+            uc.regDst = 'x'
             uc.regWrite = 0
             uc.aluSrc = 1
             uc.aluOp = 0
             uc.pcSrc = 0
             uc.memRead = 0
             uc.memWrite = 1
+            uc.memToReg = 'x'
             break;
         case "beq":
+            uc.regDst = 'x'
             uc.regWrite = 0
             uc.aluSrc = 0
             uc.aluOp = 1
             uc.pcSrc = 1
             uc.memRead = 0
             uc.memWrite = 0
+            uc.memToReg = 'x'
             break;
         case "stall":
             uc.regDst = 0

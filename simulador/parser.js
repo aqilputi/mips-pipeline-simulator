@@ -106,7 +106,7 @@ function parser(instruction){
 	if (typeof(instruction) != "string")
 		throw "\'instruction\' must be of String type"
 
-	instruction = instruction.split(' ')
+	instruction = instruction.trim().split(' ')
 	if (instruction.length > 4)
 		throw badStringErr
 
@@ -128,22 +128,27 @@ function parser(instruction){
 			parsed.rd = 0
 			break
 
-		case "beq":
-			parsed.rs = register(instruction[1])
-			parsed.rt = register(instruction[2])
-			parsed.imm = number(instruction[3])
+		case "nop":
+			parsed.rt = 0
+			parsed.imm = 0
+			parsed.rs = 0
 			parsed.rd = 0
-			break
+		break
 
-		default: //tipo r
+		case "add":
+		case "sub":
+		case "and":
+		case "or":
+		case "slt": //tipo r
 			parsed.rs = register(instruction[2])
 			parsed.rt = register(instruction[3])
 			parsed.rd = register(instruction[1])
 			parsed.imm = 0
 			break
+
+		default:
+			throw badStringErr
 	}
 
 	return parsed
 }
-
-export {parser}

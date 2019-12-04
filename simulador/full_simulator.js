@@ -728,3 +728,7 @@ function getBufferExMem(){
 function getBufferMemWb(){
     return m.memwb
 }
+
+function reset(){
+    m = new Mips()
+}

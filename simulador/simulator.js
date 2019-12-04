@@ -1,108 +1,83 @@
-
 import * as mips from './mips.js'
+import * as parser from './parser.js'
 
 var m = new mips.Mips();
 
-var instruction1 = {
-    'name' : 'add',
-    'rd' : 0,
-    'rs' : 1,
-    'rt' : 2,
-    'imm' : 0
-}
-
-var instruction2 = {
-    'name' : 'sw',
-    'rd' : 7,
-    'rs' : 9,
-    'rt' : 8,
-    'imm' : 0
-}
 
 
-var instruction3 = {
-    'name' : 'lw',
-    'rd' : 2,
-    'rs' : 0,
-    'rt' : 4,
-    'imm' : 0
-}
-
-
-var instruction4 = {
-    'name' : 'sub',
-    'rd' : 1,
-    'rs' : 2,
-    'rt' : 3,
-    'imm' : 0
-}
-
-
-var instruction5 = {
-    'name' : 'add',
-    'rd' : 0,
-    'rs' : 4,
-    'rt' : 3,
-    'imm' : 0
-}
-
-var instructionStall = {
-    'name' : 'stall',
-    'rd' : 0,
-    'rs' : 0,
-    'rt' : 0,
-    'imm' : 0
-}
-
-
-
-
-//precisa jogar uma instrucao ai em if por enquanto
-function tick(){
-    m.tickWb()
-    m.tickMem()
-    m.tickEx()
-    m.tickId()
-    m.tickIf(instruction3)
+function tick(query){
+    try{
+        var instruction = parser.parser(query)
+    }catch (e){
+        console.log(e)
+        return
+    }
 
     m.tickWb()
     m.tickMem()
     m.tickEx()
     m.tickId()
-    m.tickIf(instruction5)
-
-    m.tickWb()
-    m.tickMem()
-    m.tickEx()
-    m.tickId()
-    m.tickIf(instruction5)
-
-
-    m.tickWb()
-    m.tickMem()
-    m.tickEx()
-    m.tickId()
-    m.tickIf(instructionStall)
-
-    m.tickWb()
-    m.tickMem()
-    m.tickEx()
-    m.tickId()
-    m.tickIf(instructionStall)
-
-    m.tickWb()
-    m.tickMem()
-    m.tickEx()
-    m.tickId()
-    m.tickIf(instructionStall)
-
-    m.tickWb()
-    m.tickMem()
-    m.tickEx()
-    m.tickId()
-    m.tickIf(instructionStall)
-
-
+    m.tickIf(instruction)
 }
 
-tick()
+// teste
+
+tick('add $t0, $t1, $t0')
+tick('add $t0, $t1, $t0')
+tick('add $t0, $t1, $t0')
+tick('add $t0, $t1, $t0')
+tick('add $t0, $t1, $t0')
+tick('add $t0, $t1, $t0')
+tick('add $t0, $t1, $t0')
+tick('add $t0, $t1, $t0')
+tick('add $t0, $t1, $t0')
+tick('add $t0, $t1, $t0')
+tick('add $t0, $t1, $t0')
+tick('add $t0, $t1, $t0')
+tick('add $t0, $t1, $t0')
+tick('add $t0, $t1, $t0')
+tick('add $t0, $t1, $t0')
+tick('add $t0, $t1, $t0')
+tick('add $t0, $t1, $t0')
+
+
+
+//getters
+function getPC(){
+    return m.pc
+}
+
+function getInstructionMemory(){
+    return m.instr
+}
+
+function getRegisters(){
+    return m.regs
+}
+
+function getMemory(){
+    return m.mem
+}
+
+function getUCSignals(){
+    return m.uc
+}
+
+function getAluControlSignals(){
+    return m.aluControl
+}
+
+function getBufferIfId(){
+    return m.ifid
+}
+
+function getBufferIdEx(){
+    return m.idex
+}
+
+function getBufferExMem(){
+    return m.exmem
+}
+function getBufferMemWb(){
+    return m.memwb
+}

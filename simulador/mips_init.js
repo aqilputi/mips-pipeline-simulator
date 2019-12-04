@@ -17,7 +17,7 @@ function initInstructions(){
 }
 
 function initRegisters(){
-    var regs = new Array(10)
+    var regs = new Array(30)
     for(var i=0; i < regs.length; i++){
         regs[i] = 10-i
     }

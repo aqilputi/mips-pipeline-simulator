@@ -1,4 +1,4 @@
-function initInstruction(){
+export function initInstruction(){
     var instruction = {
         'name' : 'stall',
         'rd' : 0,
@@ -8,7 +8,7 @@ function initInstruction(){
     } 
     return instruction
 }
-function initInstructions(){
+export function initInstructions(){
     var regs = new Array(400)
     for(var i=0; i < regs.length; i++){
         regs[i] = 0
@@ -16,7 +16,7 @@ function initInstructions(){
     return regs
 }
 
-function initRegisters(){
+export function initRegisters(){
     var regs = new Array(30)
     for(var i=0; i < regs.length; i++){
         regs[i] = 10-i
@@ -24,7 +24,7 @@ function initRegisters(){
     return regs
 }
 
-function initMemory(){
+export function initMemory(){
     var mem = new Array(100)
     for(var i=0; i < mem.length; i++){
         mem[i] = 10-i
@@ -33,7 +33,7 @@ function initMemory(){
     return mem
 }
 
-function initControlUnit(){
+export function initControlUnit(){
     var UC = {'regDst': 0,
               'regWrite' : 0,
               'aluSrc' : 0,
@@ -46,17 +46,18 @@ function initControlUnit(){
     return UC
 }
 
-function initAluControl(){
+export function initAluControl(){
     return 0
 }
 
-function initTempIfId(){
+export function initTempIfId(){
     var ifid = {'npc' : 0,
+                'instruction' : "nop",
                 'ir': initInstruction()}
     return ifid
 }
 
-function initTempIdEx(){
+export function initTempIdEx(){
     var idex = {'regDst': 0,
                 'regWrite' : 0,
                 'aluSrc' : 0,
@@ -66,6 +67,7 @@ function initTempIdEx(){
                 'memWrite' : 0,
                 'memToReg' : 0,
                 'name' : "stall",
+                'instruction' : "nop",
                 'npc' : 0,
                 'a' : 0,
                 'b' : 0,
@@ -76,13 +78,14 @@ function initTempIdEx(){
     return idex
 }
 
-function initTempExMem(){
+export function initTempExMem(){
     var exmem = {'regWrite' : 0,
                  'pcSrc' : 0,
                  'memRead' : 0,
                  'memWrite' : 0,
                  'memToReg' : 0,
                 'name' : "stall",
+                 'instruction' : "nop",
                  'brtgt' : 0,
                  'zero' : 0,
                  'aluOut' : 0,
@@ -92,10 +95,11 @@ function initTempExMem(){
     return exmem
 }
 
-function initTempMemWb(){
+export function initTempMemWb(){
     var memwb = {'memWrite' : 0,
                  'memToReg' : 0,
                 'name' : "stall",
+                 'instruction' : "nop",
                  'lmd' : 0,
                  'aluOut' : 0,
                  'rd' : 3,
@@ -103,7 +107,7 @@ function initTempMemWb(){
     return memwb
 }
 
-function initPC(){
+export function initPC(){
     return 0
 }
 
@@ -150,8 +154,10 @@ class Mips{
         //inicia pipeline
         if(stalling == 1){
             this.ifid.ir = this.stall()
+            this.ifid.instruction = 'nop'
         }else{
             this.ifid.ir = this.instr[(this.pc)/4]
+            this.ifid.instruction = this.instr[(this.pc)/4].instruction.slice()
             
         }
         this.ifid.npc = this.pc + 4
@@ -163,6 +169,7 @@ class Mips{
     }
 
     tickId(){
+        this.idex.instruction = this.ifid.instruction.slice
         if(this.ifid.ir != 0)
             this.idex.name = this.ifid.ir.name.slice()
         this.idex.npc = this.ifid.npc
@@ -223,6 +230,7 @@ class Mips{
     tickEx(){
         var mux_b
 
+        this.exmem.instruction = this.idex.instruction.slice()
         this.exmem.name = this.idex.name.slice()
         this.exmem.brtgt = this.idex.npc + this.idex.imm
 
@@ -261,6 +269,7 @@ class Mips{
     }
 
     tickMem(){
+        this.memwb.instruction = this.exmem.instruction.slice()
         this.memwb.name = this.exmem.name.slice()
         if(this.exmem.pcSrc == 1)
             this.pc = this.exmem.brtgt
@@ -438,39 +447,39 @@ class Mips{
 
 
 
-function inRange(num, min, max){
+export function inRange(num, min, max){
 	return num >= min && num <= max
 }
 
-function number(num) {
+export function number(num) {
 	var result = 0
 
 	console.log(num)
 
 	if (num.length == 0)
-		throw badStringErr
+		throw "badStringErr"
 
 	for (var i = 0; i < num.length; ++i) {
 		if (inRange(num[i], '0', '9'))
 			result = 10 * result + num[i] * 1
 		else
-			throw badStringErr
+			throw "badStringErr"
 	}
 
 	return result
 }
 
-function register(reg){
+export function register(reg){
 	var temp
 	if (reg[0] != '$')
-		throw badStringErr
+		throw "badStringErr"
 
 	switch(reg[1]){
 		case 'z':
 			if(reg == "$zero")
 				return 0
 			else 
-				throw badStringErr
+				throw "badStringErr"
 
 		case 'v':
 			temp = number(reg.slice(2))
@@ -478,7 +487,7 @@ function register(reg){
 			if(inRange(temp, 0, 1))
 				return 2 + temp
 			else
-				throw badStringErr
+				throw "badStringErr"
 
 		case 'a':
 			temp = number(reg.slice(2))
@@ -486,20 +495,20 @@ function register(reg){
 			if(inRange(temp, 0, 3))
 				return 4 + temp
 			else
-				throw badStringErr
+				throw "badStringErr"
 
 		case 't':
 			temp = number(reg.slice(2))
 
 			if (temp < 0)
-				throw badStringErr
+				throw "badStringErr"
 
 			if(temp <= 7)
 				return 8 + temp
 			else if (temp <= 9)
 				return 16 + temp
 			else
-				throw badStringErr
+				throw "badStringErr"
 
 		case 's':
 			if(reg[2] == 'p' && reg.length == 3)
@@ -510,7 +519,7 @@ function register(reg){
 			if(inRange(temp, 0, 7))
 				return 16 + temp
 			else
-				throw badStringErr
+				throw "badStringErr"
 
 		default:
 			switch(reg){
@@ -524,21 +533,21 @@ function register(reg){
 					return 31
 
 				default:
-					throw badStringErr
+					throw "badStringErr"
 			}
 	}
 }
 
-function reference(refer){
+export function reference(refer){
 	var index = refer.indexOf('(')
 
 	if (index == -1 || !refer.endsWith(')'))
-		throw badStringErr
+		throw "badStringErr"
 
 	return [number(refer.slice(0, index)), register(refer.slice(index + 1, -1))]
 }
 
-function parser(instruction){
+export function parser(instruction){
 	var parsed = new(Object)
 
 	if (typeof(instruction) != "string")
@@ -546,13 +555,13 @@ function parser(instruction){
 
 	instruction = instruction.trim().split(' ')
 	if (instruction.length > 4)
-		throw badStringErr
+		throw "badStringErr"
 
 	parsed.name = instruction[0]
 
 	for (var i = 1; i < instruction.length - 1; ++i) {
 		if (!instruction[i].endsWith(','))
-			throw badStringErr
+			throw "badStringErr"
 		instruction[i] = instruction[i].slice(0, -1)
 	}
 
@@ -585,16 +594,17 @@ function parser(instruction){
 			break
 
 		default:
-			throw badStringErr
+			throw "badStringErr"
 	}
 
+    parsed.instruction = instruction
 	return parsed
 }
 
 
 var m = new Mips();
 
-function tick(query){
+export function tick(query){
     try{
         var instruction = parser(query)
     }catch (e){
@@ -610,28 +620,26 @@ function tick(query){
 }
 
 
-tick("add $t0, $t0, $t0")
-
 //getters
 
 // inteiro
-function getPC(){
+export function getPC(){
     return m.pc
 }
 
 //vetor de 400 posicoes
-function getInstructionMemory(){
+export function getInstructionMemory(){
     return m.instr
 }
 
 
 //vetor de 30 pos
-function getRegisters(){
+export function getRegisters(){
     return m.regs
 }
 
 //vetor de 100 pos
-function getMemory(){
+export function getMemory(){
     return m.mem
 }
 
@@ -648,13 +656,13 @@ function getMemory(){
 
 
 */
-function getUCSignals(){
+export function getUCSignals(){
     return m.uc
 }
 
 
 //inteiro
-function getAluControlSignals(){
+export function getAluControlSignals(){
     return m.aluControl
 }
 
@@ -664,7 +672,7 @@ function getAluControlSignals(){
                 'ir': initInstruction()}
  
 */
-function getBufferIfId(){
+export function getBufferIfId(){
     return m.ifid
 }
 
@@ -689,7 +697,7 @@ function getBufferIfId(){
                 'rs' : 0}
  
 */
-function getBufferIdEx(){
+export function getBufferIdEx(){
     return m.idex
 }
 
@@ -710,7 +718,7 @@ function getBufferIdEx(){
                 }
   
 */
-function getBufferExMem(){
+export function getBufferExMem(){
     return m.exmem
 }
 
@@ -725,10 +733,10 @@ function getBufferExMem(){
                 }
   
 */
-function getBufferMemWb(){
+export function getBufferMemWb(){
     return m.memwb
 }
 
-function reset(){
+export function reset(){
     m = new Mips()
 }

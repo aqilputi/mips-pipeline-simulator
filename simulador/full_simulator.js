@@ -169,7 +169,7 @@ class Mips{
     }
 
     tickId(){
-        this.idex.instruction = this.ifid.instruction.slice
+        this.idex.instruction = this.ifid.instruction.slice()
         if(this.ifid.ir != 0)
             this.idex.name = this.ifid.ir.name.slice()
         this.idex.npc = this.ifid.npc
@@ -230,6 +230,7 @@ class Mips{
     tickEx(){
         var mux_b
 
+        console.log(this.idex.instruction)
         this.exmem.instruction = this.idex.instruction.slice()
         this.exmem.name = this.idex.name.slice()
         this.exmem.brtgt = this.idex.npc + this.idex.imm
@@ -444,8 +445,7 @@ class Mips{
     
 }
 
-
-
+var badStringErr = "Bad formatted String"
 
 export function inRange(num, min, max){
 	return num >= min && num <= max
@@ -457,13 +457,13 @@ export function number(num) {
 	console.log(num)
 
 	if (num.length == 0)
-		throw "badStringErr"
+		throw badStringErr
 
 	for (var i = 0; i < num.length; ++i) {
 		if (inRange(num[i], '0', '9'))
 			result = 10 * result + num[i] * 1
 		else
-			throw "badStringErr"
+			throw badStringErr
 	}
 
 	return result
@@ -472,14 +472,14 @@ export function number(num) {
 export function register(reg){
 	var temp
 	if (reg[0] != '$')
-		throw "badStringErr"
+		throw badStringErr
 
 	switch(reg[1]){
 		case 'z':
 			if(reg == "$zero")
 				return 0
 			else 
-				throw "badStringErr"
+				throw badStringErr
 
 		case 'v':
 			temp = number(reg.slice(2))
@@ -487,7 +487,7 @@ export function register(reg){
 			if(inRange(temp, 0, 1))
 				return 2 + temp
 			else
-				throw "badStringErr"
+				throw badStringErr
 
 		case 'a':
 			temp = number(reg.slice(2))
@@ -495,20 +495,20 @@ export function register(reg){
 			if(inRange(temp, 0, 3))
 				return 4 + temp
 			else
-				throw "badStringErr"
+				throw badStringErr
 
 		case 't':
 			temp = number(reg.slice(2))
 
 			if (temp < 0)
-				throw "badStringErr"
+				throw badStringErr
 
 			if(temp <= 7)
 				return 8 + temp
 			else if (temp <= 9)
 				return 16 + temp
 			else
-				throw "badStringErr"
+				throw badStringErr
 
 		case 's':
 			if(reg[2] == 'p' && reg.length == 3)
@@ -519,7 +519,7 @@ export function register(reg){
 			if(inRange(temp, 0, 7))
 				return 16 + temp
 			else
-				throw "badStringErr"
+				throw badStringErr
 
 		default:
 			switch(reg){
@@ -533,7 +533,7 @@ export function register(reg){
 					return 31
 
 				default:
-					throw "badStringErr"
+					throw badStringErr
 			}
 	}
 }
@@ -542,12 +542,13 @@ export function reference(refer){
 	var index = refer.indexOf('(')
 
 	if (index == -1 || !refer.endsWith(')'))
-		throw "badStringErr"
+		throw badStringErr
 
 	return [number(refer.slice(0, index)), register(refer.slice(index + 1, -1))]
 }
 
 export function parser(instruction){
+    var old_instruction = instruction
 	var parsed = new(Object)
 
 	if (typeof(instruction) != "string")
@@ -555,13 +556,13 @@ export function parser(instruction){
 
 	instruction = instruction.trim().split(' ')
 	if (instruction.length > 4)
-		throw "badStringErr"
+		throw badStringErr
 
 	parsed.name = instruction[0]
 
 	for (var i = 1; i < instruction.length - 1; ++i) {
 		if (!instruction[i].endsWith(','))
-			throw "badStringErr"
+			throw badStringErr
 		instruction[i] = instruction[i].slice(0, -1)
 	}
 
@@ -594,10 +595,10 @@ export function parser(instruction){
 			break
 
 		default:
-			throw "badStringErr"
+			throw badStringErr
 	}
 
-    parsed.instruction = instruction
+    parsed.instruction = old_instruction.slice()
 	return parsed
 }
 
@@ -618,6 +619,18 @@ export function tick(query){
     m.tickId()
     m.tickIf(instruction)
 }
+
+tick("add $t0, $t1, $t2")
+tick("lw $t4, 0($t1)")
+tick("sub $t0, $t1, $t2")
+tick("sw $t3, 0($s1)")
+tick("and $t5, $t2, $t1")
+tick("and $t5, $t2, $t1")
+tick("and $t5, $t2, $t1")
+tick("and $t5, $t2, $t1")
+tick("and $t5, $t2, $t1")
+
+
 
 
 //getters

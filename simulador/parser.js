@@ -1,16 +1,25 @@
 var badStringErr = "Bad formatted String"
 
-function number(num) {
-	var temp = parseInt(num)
-
-	if (isNaN(temp))
-		throw badStringErr
-
-	return temp
-}
-
 function inRange(num, min, max){
 	return num >= min && num <= max
+}
+
+function number(num) {
+	var result = 0
+
+	console.log(num)
+
+	if (num.length == 0)
+		throw badStringErr
+
+	for (var i = 0; i < num.length; ++i) {
+		if (inRange(num[i], '0', '9'))
+			result = 10 * result + num[i] * 1
+		else
+			throw badStringErr
+	}
+
+	return result
 }
 
 function register(reg){
@@ -26,7 +35,7 @@ function register(reg){
 				throw badStringErr
 
 		case 'v':
-			temp = parseInt(reg.slice(2))
+			temp = number(reg.slice(2))
 
 			if(inRange(temp, 0, 1))
 				return 2 + temp
@@ -34,7 +43,7 @@ function register(reg){
 				throw badStringErr
 
 		case 'a':
-			temp = parseInt(reg.slice(2))
+			temp = number(reg.slice(2))
 
 			if(inRange(temp, 0, 3))
 				return 4 + temp
@@ -42,7 +51,7 @@ function register(reg){
 				throw badStringErr
 
 		case 't':
-			temp = parseInt(reg.slice(2))
+			temp = number(reg.slice(2))
 
 			if (temp < 0)
 				throw badStringErr
@@ -50,12 +59,15 @@ function register(reg){
 			if(temp <= 7)
 				return 8 + temp
 			else if (temp <= 9)
-				return 24 + temp
+				return 16 + temp
 			else
 				throw badStringErr
 
 		case 's':
-			temp = parseInt(reg.slice(2))
+			if(reg[2] == 'p' && reg.length == 3)
+				return 29
+
+			temp = number(reg.slice(2))
 
 			if(inRange(temp, 0, 7))
 				return 16 + temp
@@ -66,9 +78,6 @@ function register(reg){
 			switch(reg){
 				case "$gp":
 					return 28
-
-				case "$sp": 
-					return 29
 
 				case "$fp": 
 					return 30
@@ -88,7 +97,7 @@ function reference(refer){
 	if (index == -1 || !refer.endsWith(')'))
 		throw badStringErr
 
-	return [number(refer.slice(0, index - 1)), register(refer.slice(index + 1, -1))]
+	return [number(refer.slice(0, index)), register(refer.slice(index + 1, -1))]
 }
 
 function parser(instruction){
@@ -98,12 +107,12 @@ function parser(instruction){
 		throw "\'instruction\' must be of String type"
 
 	instruction = instruction.split(' ')
-	if (instruction.legth > 4)
+	if (instruction.length > 4)
 		throw badStringErr
 
 	parsed.name = instruction[0]
 
-	for (i = 1; i < instruction.legth - 1; ++i) {
+	for (var i = 1; i < instruction.length - 1; ++i) {
 		if (!instruction[i].endsWith(','))
 			throw badStringErr
 		instruction[i] = instruction[i].slice(0, -1)
@@ -114,8 +123,8 @@ function parser(instruction){
 		case "sw":
 			parsed.rt = register(instruction[1])
 			var temp = reference(instruction[2])
-			parsed.imm = temp[1]
-			parsed.rs = temp[0]
+			parsed.imm = temp[0]
+			parsed.rs = temp[1]
 			parsed.rd = 0
 			break
 

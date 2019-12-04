@@ -23,7 +23,7 @@ var instruction2 = {
 var instruction3 = {
     'name' : 'lw',
     'rd' : 2,
-    'rs' : 5,
+    'rs' : 0,
     'rt' : 4,
     'imm' : 0
 }
@@ -42,7 +42,15 @@ var instruction5 = {
     'name' : 'add',
     'rd' : 0,
     'rs' : 4,
-    'rt' : 5,
+    'rt' : 3,
+    'imm' : 0
+}
+
+var instructionStall = {
+    'name' : 'stall',
+    'rd' : 0,
+    'rs' : 0,
+    'rt' : 0,
     'imm' : 0
 }
 
@@ -51,11 +59,50 @@ var instruction5 = {
 
 //precisa jogar uma instrucao ai em if por enquanto
 function tick(){
-        m.tickWb()
-        m.tickMem()
-        m.tickEx()
-        m.tickId()
-        m.tickIf(instruction3)
+    m.tickWb()
+    m.tickMem()
+    m.tickEx()
+    m.tickId()
+    m.tickIf(instruction3)
+
+    m.tickWb()
+    m.tickMem()
+    m.tickEx()
+    m.tickId()
+    m.tickIf(instruction5)
+
+    m.tickWb()
+    m.tickMem()
+    m.tickEx()
+    m.tickId()
+    m.tickIf(instruction5)
+
+
+    m.tickWb()
+    m.tickMem()
+    m.tickEx()
+    m.tickId()
+    m.tickIf(instructionStall)
+
+    m.tickWb()
+    m.tickMem()
+    m.tickEx()
+    m.tickId()
+    m.tickIf(instructionStall)
+
+    m.tickWb()
+    m.tickMem()
+    m.tickEx()
+    m.tickId()
+    m.tickIf(instructionStall)
+
+    m.tickWb()
+    m.tickMem()
+    m.tickEx()
+    m.tickId()
+    m.tickIf(instructionStall)
+
+
 }
 
 tick()

@@ -5,6 +5,7 @@ import * as mipsinit from './mips_init.js'
 class Mips{
     constructor(){
         this.pc = mipsinit.initPC()
+        this.instr = mipsinit.initInstructions()
         this.regs = mipsinit.initRegisters()
         this.mem = mipsinit.initMemory()
 
@@ -19,10 +20,37 @@ class Mips{
     }
 
     tickIf(instruction){
-        // colocar instrucao no IR
-        this.ifid.ir = instruction
+        var stalling = 0
+
+        if(this.instr[this.pc/4] == 0)
+                this.instr[this.pc/4] = instruction
+
+        // verificador de dependencia
+        if(this.pc >= 4){
+            if(this.instr[(this.pc-4)/4].name === "lw"){
+                if((this.instr[(this.pc)/4].rt ==
+                    this.ifid.ir.rt) ||
+                   (this.instr[(this.pc)/4].rs ==
+                    this.ifid.ir.rt)){
+                    console.log("dependencia de dados lw!")
+                    this.pc -= 4
+                    stalling = 1
+                }    
+            }
+            
+        }
+
+        //inicia pipeline
+        if(stalling == 1){
+            this.ifid.ir = this.stall()
+        }else{
+            this.ifid.ir = this.instr[(this.pc)/4]
+            
+        }
         this.ifid.npc = this.pc + 4
         this.pc += 4
+
+        console.log("if instruction: " + this.ifid.ir.name)
 
         return
     }
@@ -31,8 +59,39 @@ class Mips{
         if(this.ifid.ir != 0)
             this.idex.name = this.ifid.ir.name.slice()
         this.idex.npc = this.ifid.npc
-        this.idex.a = this.regs[this.ifid.ir.rs]
-        this.idex.b = this.regs[this.ifid.ir.rt]
+
+
+        
+        //implementacao do fowarding
+        if(this.exmem.regWrite == 1 || this.memwb.regWrite == 1){
+            if(this.exmem.rd == this.ifid.ir.rs){
+                this.idex.a = this.exmem.aluOut
+            }else{
+                if(this.memwb.name === "lw" &&
+                   this.memwb.rd == this.ifid.ir.rs){
+                    this.idex.a = this.memwb.lmd
+                    console.log("realizando fowarding")
+                    
+                }
+                else
+                    this.idex.a = this.regs[this.ifid.ir.rs]
+            }
+
+
+            if(this.exmem.rd == this.ifid.ir.rt){
+                this.idex.b = this.exmem.aluOut
+            }else{
+                if(this.memwb.name === "lw" &&
+                   this.memwb.rd == this.ifid.ir.rt)
+                    this.idex.b = this.memwb.lmd
+                else
+                    this.idex.b = this.regs[this.ifid.ir.rt]
+            }
+        }else{
+            this.idex.a = this.regs[this.ifid.ir.rs]
+            this.idex.b = this.regs[this.ifid.ir.rt]
+        }
+            
         this.idex.rt = this.ifid.ir.rt
         this.idex.rd = this.ifid.ir.rd
         this.idex.imm = this.ifid.ir.imm
@@ -50,12 +109,14 @@ class Mips{
         this.idex.memWrite = this.uc.memWrite
         this.idex.memToReg = this.uc.memToReg
 
+        console.log("id instruction: " + this.idex.name)
         return
     }
 
     tickEx(){
         var mux_b
 
+        this.exmem.name = this.idex.name.slice()
         this.exmem.brtgt = this.idex.npc + this.idex.imm
 
         if(this.idex.aluSrc == 0)
@@ -64,6 +125,7 @@ class Mips{
             mux_b = this.idex.imm
 
         //utilizado nome da instrucao em vez de opcode
+        console.log(this.exmem.name + " fara " + this.idex.a + " " + mux_b)
         this.aluControl = this.getAluControl(this.idex.aluOp, this.idex.name)
         this.exmem.aluOut = this.useAlu(this.idex.a, mux_b, this.aluControl)
 
@@ -87,15 +149,21 @@ class Mips{
         this.exmem.memRead = this.idex.memRead
         this.exmem.memWrite = this.idex.memWrite
 
+        console.log("exmem instruction: " + this.exmem.name)
         return
     }
 
     tickMem(){
+        this.memwb.name = this.exmem.name.slice()
         if(this.exmem.pcSrc == 1)
             this.pc = this.exmem.brtgt
 
-        if(this.exmem.memRead == 1)
+        if(this.exmem.memRead == 1){
+            console.log("posicao da memoria: " + this.memwb.aluOut)
+            console.log("adquiriu da memoria: " + this.memwb.lmd)
             this.memwb.lmd = this.mem[this.exmem.aluOut]
+        }
+        
         if(this.exmem.memWrite == 1)
             this.mem[this.exmem.aluOut] = this.exmem.b
 
@@ -105,6 +173,8 @@ class Mips{
         // salvando sinais de controles em id/ex
         this.memwb.memToReg = this.exmem.memToReg
         this.memwb.regWrite = this.exmem.regWrite
+
+        console.log("memwb instruction: " + this.memwb.name)
     }
 
     tickWb(){
@@ -122,6 +192,18 @@ class Mips{
         }
         console.log(this.regs)
         console.log(this.mem)
+    }
+
+    stall(){
+        var stall_instruction = {
+            'name' : 'stall',
+            'rd' : 0,
+            'rs' : 0,
+            'rt' : 0,
+            'imm' : 0
+        }
+
+        return stall_instruction
     }
 
     useAlu(a, b, aluControl){
@@ -163,6 +245,8 @@ class Mips{
                 return 1
             case "slt":
                 return 7
+            case "stall":
+                return 0 
             default:
                 console.log("instrucao n implementada em alucontrol")
                 break
@@ -212,6 +296,16 @@ class Mips{
             uc.pcSrc = 1
             uc.memRead = 0
             uc.memWrite = 0
+            break;
+        case "stall":
+            uc.regDst = 0
+            uc.regWrite = 0
+            uc.aluSrc = 0
+            uc.aluOp = 0
+            uc.pcSrc = 0
+            uc.memRead = 0
+            uc.memWrite = 0
+            uc.memToReg = 0
             break;
         default: //tipo r
             uc.regDst = 1

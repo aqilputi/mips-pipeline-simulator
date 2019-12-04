@@ -19,7 +19,7 @@ export function initInstructions(){
 export function initRegisters(){
     var regs = new Array(30)
     for(var i=0; i < regs.length; i++){
-        regs[i] = 10-i
+        regs[i] = i
     }
     return regs
 }
@@ -27,7 +27,7 @@ export function initRegisters(){
 export function initMemory(){
     var mem = new Array(100)
     for(var i=0; i < mem.length; i++){
-        mem[i] = 10-i
+        mem[i] = 0
     }
 
     return mem

@@ -1,9 +1,6 @@
-
-var m = new mips.Mips();
-
 function tick(query){
     try{
-        var instruction = parser.parser(query)
+        var instruction = parser(query)
     }catch (e){
         console.log(e)
         return

@@ -1,5 +1,5 @@
 import * as mips from './mips.js'
-import './parser.js'
+import * as parser from './parser.js'
 
 var m = new mips.Mips();
 
@@ -7,7 +7,7 @@ var m = new mips.Mips();
 
 function tick(query){
     try{
-        var instruction = parser(query)
+        var instruction = parser.parser(query)
     }catch (e){
         console.log(e)
         return
@@ -19,27 +19,6 @@ function tick(query){
     m.tickId()
     m.tickIf(instruction)
 }
-
-// teste
-
-tick('add $t0, $t1, $t0')
-tick('add $t0, $t1, $t0')
-tick('add $t0, $t1, $t0')
-tick('add $t0, $t1, $t0')
-tick('add $t0, $t1, $t0')
-tick('add $t0, $t1, $t0')
-tick('add $t0, $t1, $t0')
-tick('add $t0, $t1, $t0')
-tick('add $t0, $t1, $t0')
-tick('add $t0, $t1, $t0')
-tick('add $t0, $t1, $t0')
-tick('add $t0, $t1, $t0')
-tick('add $t0, $t1, $t0')
-tick('add $t0, $t1, $t0')
-tick('add $t0, $t1, $t0')
-tick('add $t0, $t1, $t0')
-tick('add $t0, $t1, $t0')
-
 
 
 //getters

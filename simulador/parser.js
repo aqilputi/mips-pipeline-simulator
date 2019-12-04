@@ -152,3 +152,5 @@ function parser(instruction){
 
 	return parsed
 }
+
+export {parser}

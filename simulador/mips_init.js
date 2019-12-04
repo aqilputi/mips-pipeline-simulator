@@ -1,7 +1,7 @@
 function initRegisters(){
     var regs = new Array(10)
     for(var i=0; i < regs.length; i++){
-        regs[i] = 0
+        regs[i] = 10-i
     }
     return regs
 }
@@ -9,7 +9,7 @@ function initRegisters(){
 function initMemory(){
     var mem = new Array(100)
     for(var i=0; i < mem.length; i++){
-        mem[i] = 0
+        mem[i] = 10-i
     }
 
     return mem
@@ -28,6 +28,10 @@ function initControlUnit(){
     return UC
 }
 
+function initAluControl(){
+    return 0
+}
+
 function initTempIfId(){
     var ifid = {'npc' : 0,
                 'ir': 0}
@@ -43,6 +47,7 @@ function initTempIdEx(){
                 'memRead' : 0,
                 'memWrite' : 0,
                 'memToReg' : 0,
+                'name' : "NaN",
                 'npc' : 0,
                 'a' : 0,
                 'b' : 0,
@@ -85,6 +90,7 @@ function initPC(){
 export {initRegisters}
 export {initMemory}
 export {initControlUnit}
+export {initAluControl}
 export {initTempIfId}
 export {initTempIdEx}
 export {initTempExMem}

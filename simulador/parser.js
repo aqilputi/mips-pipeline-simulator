@@ -103,7 +103,7 @@ function parser(instruction){
 
 	parsed.name = instruction[0]
 
-	for (i = 1; i < instruction.legth - 1; ++i) {
+	for (var i = 1; i < instruction.legth - 1; ++i) {
 		if (!instruction[i].endsWith(','))
 			throw badStringErr
 		instruction[i] = instruction[i].slice(0, -1)
@@ -136,3 +136,5 @@ function parser(instruction){
 
 	return parsed
 }
+
+export {parser}
